@@ -10,7 +10,16 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import joptsimple.util.KeyValuePair;
 
-public class CommandLine {
+/**
+ * This class aims at providing some helpers while creating a CLiC command line
+ * for Maven using jopt-simple. It gives helpers in order to configure the
+ * {@link OptionParser} and some getters in order to retrieve the needed
+ * information from a computed command line.
+ * 
+ * @author aneveux
+ * @version 1.0
+ */
+public class MavenClicCommandLine {
 
 	/**
 	 * This {@link OptionSpec} contains all the Maven parameters provided using
@@ -30,6 +39,13 @@ public class CommandLine {
 	 */
 	private OptionSpec<String> mavenCommand;
 
+	/**
+	 * Configures a specified {@link OptionParser} to accept all the parameters
+	 * which are required while dealing with Maven commands in CLiC
+	 * 
+	 * @param parser
+	 *            {@link OptionParser} to be configured
+	 */
 	public void configureParser(final OptionParser parser) {
 		mavenReference = parser
 				.accepts(MAVEN_REFERENCE.value(),
@@ -55,6 +71,19 @@ public class CommandLine {
 				.ofType(KeyValuePair.class);
 	}
 
+	/**
+	 * Allows to compute Maven parameters from a <code>-Dparam=value</code>
+	 * representation to a java {@link Properties} representation
+	 * 
+	 * @param options
+	 *            {@link OptionSet} corresponding to the result of a computed
+	 *            command line
+	 * @param params
+	 *            {@link OptionSpec} matching with that
+	 *            <code>-Dparam=value</code> {@link KeyValuePair} representation
+	 * @return {@link Properties} containing all the parameters we want to use
+	 *         for Maven
+	 */
 	public static Properties computeMavenParameters(final OptionSet options,
 			final OptionSpec<KeyValuePair> params) {
 		if (!options.has(params))

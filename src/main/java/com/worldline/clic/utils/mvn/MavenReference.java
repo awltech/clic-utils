@@ -19,23 +19,24 @@ public class MavenReference {
 	 *            refernce
 	 */
 	public MavenReference(final String ref) {
-		groupId = ref.split(":")[0];
-		artifactId = ref.split(":")[1];
-		version = ref.split(":")[2];
+		String[] elements = ref.split(":");
+		groupId = elements[0];
+		artifactId = elements[1];
+		version = elements[2];
 	}
 
 	/**
 	 * Maven groupId
 	 */
-	public String groupId;
+	public final String groupId;
 	/**
 	 * Maven artifactId
 	 */
-	public String artifactId;
+	public final String artifactId;
 	/**
 	 * Maven version
 	 */
-	public String version;
+	public final String version;
 
 	/**
 	 * Allows to format the reference using the format

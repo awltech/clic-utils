@@ -1,6 +1,7 @@
 package com.worldline.clic.utils.mvn;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -18,6 +19,29 @@ import com.google.common.io.Files;
  * @version 1.0
  */
 public class MavenCommand {
+	/**
+	 * Generates a pom.xml and the associated {@link InvocationRequest}.
+	 * 
+	 * @param reference
+	 *            {@link MavenReference} to be used as a parent
+	 * @param artifactId
+	 *            to be used by the generated pom
+	 * @param goals
+	 *            the goals to be invoked
+	 * @param properties
+	 *            {@link Properties} containing all the parameters to be
+	 *            processed by Maven
+	 * @return the {@link InvocationRequest} to be executed
+	 * @throws IOException
+	 *             if pom cannot be generated
+	 */
+	public static InvocationRequest generatePomAndCommand(
+			final MavenReference reference, final String artifactId,
+			final List<String> goals, final Properties properties)
+			throws IOException {
+		File pom = MavenPom.generate(reference, artifactId);
+		return generatePomCommand(pom, goals, properties);
+	}
 
 	/**
 	 * Generates an {@link InvocationRequest} on a specific pom.xml

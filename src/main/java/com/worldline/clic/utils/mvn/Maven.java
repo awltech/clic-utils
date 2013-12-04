@@ -4,7 +4,9 @@ import static com.worldline.clic.utils.Messages.GENERATE_POM;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -30,6 +32,35 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
  * @version 1.0
  */
 public class Maven {
+
+	private Maven() {
+	} // prevents instantation
+
+	/**
+	 * Simple Maven execution for a Claudia plugin.
+	 * 
+	 * @param reference
+	 *            group:artifact:version of the plugin
+	 * @param goal
+	 * @param arguments
+	 *            properties to pass -D to mvn
+	 * @param outputPatterns
+	 *            to filter the stdout of the mvn invocation
+	 * @return stdout lines matching one of the provided patterns
+	 * @throws IOException
+	 *             if a pom.xml needs to be generated and there's an error
+	 *             during that process
+	 * @throws MavenInvocationException
+	 *             if anything's wrong while executing Maven
+	 */
+	public static List<String> execute(String reference, String goal,
+			Properties arguments, String... outputPatterns)
+			throws MavenInvocationException, IOException {
+		InvocationRequest pomCommand = MavenCommand.generatePomAndCommand(
+				new MavenReference(reference), "execution-from-java",
+				Collections.singletonList(goal), arguments);
+		return Maven.execute(pomCommand, "variables");
+	}
 
 	/**
 	 * Executes a Maven command line which has been computed through CLiC using
@@ -67,7 +98,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything's wrong while executing Maven
 	 */
-	public void executeCommandLine(final OptionSet options,
+	public static void executeCommandLine(final OptionSet options,
 			final OptionSpec<KeyValuePair> mavenParameters,
 			final OptionSpec<String> mavenReference,
 			final OptionSpec<String> mavenCommand) throws IOException,
@@ -99,7 +130,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything went wrong while executing Maven
 	 */
-	public InvocationResult execute(final InvocationRequest request)
+	public static InvocationResult execute(final InvocationRequest request)
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();
 		final InvocationResult result = invoker.execute(request);
@@ -122,7 +153,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything went wrong while executing Maven
 	 */
-	public List<String> execute(final InvocationRequest request,
+	public static List<String> execute(final InvocationRequest request,
 			final String... outputPatterns) throws MavenInvocationException {
 		final PatternOutputHandler handler = new PatternOutputHandler(
 				outputPatterns);
@@ -145,7 +176,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything went wrong while executing Maven
 	 */
-	public void execute(final InvocationRequest request,
+	public static void execute(final InvocationRequest request,
 			final InvocationOutputHandler outputHandler)
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();

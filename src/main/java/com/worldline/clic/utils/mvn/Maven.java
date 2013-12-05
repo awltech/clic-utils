@@ -180,8 +180,10 @@ public class Maven {
 			final InvocationOutputHandler outputHandler)
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();
-		if (outputHandler != null)
+		if (outputHandler != null) {
 			invoker.setOutputHandler(outputHandler);
+			invoker.setErrorHandler(outputHandler);
+		}
 		invoker.execute(request);
 	}
 

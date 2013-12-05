@@ -59,7 +59,7 @@ public class Maven {
 		InvocationRequest pomCommand = MavenCommand.generatePomAndCommand(
 				new MavenReference(reference), "execution-from-java",
 				Collections.singletonList(goal), arguments);
-		return Maven.execute(pomCommand, "variables");
+		return Maven.execute(pomCommand, outputPatterns);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 #CLiC
 
-Master: [![Build Status](https://travis-ci.org/worldline/clic-utils.png)](https://travis-ci.org/worldline/clic-utils)
+Master: [![Build Status](https://api.travis-ci.org/awltech/clic-utils.png)](https://travis-ci.org/worldline/clic-utils)
  
 ##About
 CLiC (Command Line Client) is an Eclipse framework allowing to deal with command line interpretation and execution. It aims at providing an extensible way of defining commands, and provides various tools in order to parse those commands and execute them.

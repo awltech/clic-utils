@@ -44,22 +44,18 @@ public class Maven {
 	 * @param goal
 	 * @param arguments
 	 *            properties to pass -D to mvn
-	 * @param outputPatterns
-	 *            to filter the stdout of the mvn invocation
-	 * @return stdout lines matching one of the provided patterns
 	 * @throws IOException
 	 *             if a pom.xml needs to be generated and there's an error
 	 *             during that process
 	 * @throws MavenInvocationException
 	 *             if anything's wrong while executing Maven
 	 */
-	public static List<String> execute(String reference, String goal,
-			Properties arguments, String... outputPatterns)
-			throws MavenInvocationException, IOException {
+	public static StandardOutputError execute(String reference, String goal,
+			Properties arguments) throws MavenInvocationException, IOException {
 		InvocationRequest pomCommand = MavenCommand.generatePomAndCommand(
 				new MavenReference(reference), "execution-from-java",
 				Collections.singletonList(goal), arguments);
-		return Maven.execute(pomCommand, outputPatterns);
+		return Maven.execute(pomCommand);
 	}
 
 	/**
@@ -126,39 +122,19 @@ public class Maven {
 	 * 
 	 * @param request
 	 *            {@link InvocationRequest} to be executed
-	 * @return the {@link InvocationResult} computed from the execution
 	 * @throws MavenInvocationException
 	 *             if anything went wrong while executing Maven
 	 */
-	public static InvocationResult execute(final InvocationRequest request)
+	public static StandardOutputError execute(final InvocationRequest request)
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();
+		ListOutputHandler err = new ListOutputHandler();
+		ListOutputHandler out = err;
+		invoker.setOutputHandler(out);
+		invoker.setErrorHandler(err);
 		final InvocationResult result = invoker.execute(request);
-		return result;
-	}
-
-	/**
-	 * Executes a Maven invocation defined in a {@link InvocationRequest} which
-	 * can be created through helpers using {@link MavenCommand}. It allows also
-	 * to get results while filtering the output using the provided patterns.
-	 * 
-	 * @param request
-	 *            {@link InvocationRequest} to be executed
-	 * @param outputPatterns
-	 *            an array of patterns (regex, or plain Strings) you'd like to
-	 *            use to filter the results. Filetering will be done using
-	 *            {@link PatternOutputHandler}.
-	 * @return a {@link List} of all the strings coming from the outputs
-	 *         matching or containing the provided patterns
-	 * @throws MavenInvocationException
-	 *             if anything went wrong while executing Maven
-	 */
-	public static List<String> execute(final InvocationRequest request,
-			final String... outputPatterns) throws MavenInvocationException {
-		final PatternOutputHandler handler = new PatternOutputHandler(
-				outputPatterns);
-		execute(request, handler);
-		return handler.outputs;
+		return new StandardOutputError(out.outputs, err.outputs,
+				result.getExitCode());
 	}
 
 	/**
@@ -195,39 +171,15 @@ public class Maven {
 	 * @version 1.0
 	 * @since 1.0
 	 */
-	static class PatternOutputHandler implements InvocationOutputHandler {
-
-		/**
-		 * Patterns to be used for retrieving results
-		 */
-		String[] patterns;
+	static class ListOutputHandler implements InvocationOutputHandler {
 		/**
 		 * Results of the output scanning
 		 */
-		List<String> outputs;
+		List<String> outputs = new ArrayList<String>();;
 
-		/**
-		 * Default constructor
-		 * 
-		 * @param patterns
-		 *            patterns to be used in order to search for the results
-		 */
-		public PatternOutputHandler(final String... patterns) {
-			this.patterns = patterns;
-			outputs = new ArrayList<String>();
-		}
-
-		/**
-		 * Allows to scan the outputs using {@link String#matches(String)} &
-		 * {@link String#contains(CharSequence)} for each provided pattern
-		 * 
-		 * @see InvocationOutputHandler#consumeLine(String)
-		 */
 		@Override
 		public void consumeLine(final String line) {
-			for (final String pattern : patterns)
-				if (line.matches(pattern) || line.contains(pattern))
-					outputs.add(line);
+			outputs.add(line);
 		}
 	}
 

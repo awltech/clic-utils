@@ -129,7 +129,7 @@ public class Maven {
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();
 		ListOutputHandler err = new ListOutputHandler();
-		ListOutputHandler out = err;
+		ListOutputHandler out = new ListOutputHandler();
 		invoker.setOutputHandler(out);
 		invoker.setErrorHandler(err);
 		final InvocationResult result = invoker.execute(request);

@@ -155,7 +155,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything's wrong while executing Maven
 	 */
-	public static void executeCommandLine(final OptionSet options,
+	public static int executeCommandLine(final OptionSet options,
 			final OptionSpec<KeyValuePair> mavenParameters,
 			final OptionSpec<String> mavenReference,
 			final OptionSpec<String> mavenCommand,
@@ -175,7 +175,8 @@ public class Maven {
 			request = MavenCommand.generateCommand(reference, options
 					.valueOf(mavenCommand), MavenClicCommandLine
 					.computeMavenParameters(options, mavenParameters));
-		execute(request,outputHandler);
+		InvocationResult result = execute(request,outputHandler);
+        return result.getExitCode();
 	}
 
 
@@ -215,7 +216,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything went wrong while executing Maven
 	 */
-	public static void execute(final InvocationRequest request,
+	public static InvocationResult execute(final InvocationRequest request,
 			final InvocationOutputHandler outputHandler)
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();
@@ -223,7 +224,8 @@ public class Maven {
 			invoker.setOutputHandler(outputHandler);
 			invoker.setErrorHandler(outputHandler);
 		}
-		invoker.execute(request);
+        return invoker.execute(request);
+
 	}
 
 	/**

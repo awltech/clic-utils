@@ -115,6 +115,70 @@ public class Maven {
 					.computeMavenParameters(options, mavenParameters));
 		execute(request);
 	}
+	
+		/**
+	 * Executes a Maven command line which has been computed through CLiC using
+	 * jopt-simple. You can use the result of a
+	 * {@link OptionParser#parse(String...)} which gives the required
+	 * {@link OptionSet}, and get the proper configuration from
+	 * {@link MavenClicCommandLine#configureParser(OptionParser)}.
+	 * 
+	 * @param options
+	 *            jopt-simple computed options from
+	 *            {@link OptionParser#parse(String...)} using the configuration
+	 *            provided by
+	 *            {@link MavenClicCommandLine#configureParser(OptionParser)}
+	 * @param mavenParameters
+	 *            {@link OptionSpec} coming from the configuration using
+	 *            {@link MavenClicCommandLine#configureParser(OptionParser)},
+	 *            can be retrieved in
+	 *            {@link MavenClicCommandLine#getMavenParameters()} after
+	 *            computing the options
+	 * @param mavenReference
+	 *            {@link OptionSpec} coming from the configuration using
+	 *            {@link MavenClicCommandLine#configureParser(OptionParser)},
+	 *            can be retrieved in
+	 *            {@link MavenClicCommandLine#getMavenReference()} after
+	 *            computing the options
+	 * @param mavenCommand
+	 *            {@link OptionSpec} coming from the configuration using
+	 *            {@link MavenClicCommandLine#configureParser(OptionParser)},
+	 *            can be retrieved in
+	 *            {@link MavenClicCommandLine#getMavenCommand()} after computing
+	 *            the options
+	 * @param outputHandler
+	 *            your own implementation of a {@link InvocationOutputHandler}
+	 *            in order to interact with the outputs
+	 * @throws IOException
+	 *             if a pom.xml needs to be generated and there's an error
+	 *             during that process
+	 * @throws MavenInvocationException
+	 *             if anything's wrong while executing Maven
+	 */
+	public static int executeCommandLine(final OptionSet options,
+			final OptionSpec<KeyValuePair> mavenParameters,
+			final OptionSpec<String> mavenReference,
+			final OptionSpec<String> mavenCommand,
+			final InvocationOutputHandler outputHandler) throws IOException,
+			MavenInvocationException {
+		final MavenReference reference = new MavenReference(
+				options.valueOf(mavenReference));
+
+		InvocationRequest request;
+
+		if (options.has(GENERATE_POM.value()))
+			request = MavenCommand.generatePomCommand(MavenPom.generate(
+					reference, "tmp"), options.valueOf(mavenCommand),
+					MavenClicCommandLine.computeMavenParameters(options,
+							mavenParameters));
+		else
+			request = MavenCommand.generateCommand(reference, options
+					.valueOf(mavenCommand), MavenClicCommandLine
+					.computeMavenParameters(options, mavenParameters));
+		InvocationResult result = execute(request,outputHandler);
+        return result.getExitCode();
+	}
+
 
 	/**
 	 * Executes a Maven invocation defined in a {@link InvocationRequest} which
@@ -152,7 +216,7 @@ public class Maven {
 	 * @throws MavenInvocationException
 	 *             if anything went wrong while executing Maven
 	 */
-	public static void execute(final InvocationRequest request,
+	public static InvocationResult execute(final InvocationRequest request,
 			final InvocationOutputHandler outputHandler)
 			throws MavenInvocationException {
 		final Invoker invoker = new DefaultInvoker();
@@ -160,7 +224,8 @@ public class Maven {
 			invoker.setOutputHandler(outputHandler);
 			invoker.setErrorHandler(outputHandler);
 		}
-		invoker.execute(request);
+        return invoker.execute(request);
+
 	}
 
 	/**
